@@ -16,12 +16,20 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { signUpSchema } from "@/lib/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -31,8 +39,23 @@ export default function SignUpPage() {
     },
   });
 
-  const onSubmit = () => {
-    console.log("Submitted!");
+  const onSubmit = (data: z.infer<typeof signUpSchema>) => {
+    startTransition(async () => {
+      await authClient.signUp.email({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Account created successfully");
+            router.push("/");
+          },
+          onError: (error) => {
+            toast.error(`Sign up failed: ${error.error.message}`);
+          },
+        },
+      });
+    });
   };
 
   return (
@@ -106,7 +129,16 @@ export default function SignUpPage() {
             />
 
             <Field>
-              <Button type="submit">Create Account</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader className="size-4 animate-spin" />{" "}
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <span>Create an account</span>
+                )}
+              </Button>
               <FieldDescription className="text-center">
                 Already have an account? <Link href="/auth/login">Login</Link>
               </FieldDescription>

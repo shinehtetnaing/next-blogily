@@ -16,12 +16,20 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { loginSchema } from "@/lib/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -30,8 +38,22 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = () => {
-    console.log("Submitted!");
+  const onSubmit = (data: z.infer<typeof loginSchema>) => {
+    startTransition(async () => {
+      await authClient.signIn.email({
+        email: data.email,
+        password: data.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Logged in successfully");
+            router.push("/");
+          },
+          onError: (error) => {
+            toast.error(`Login failed: ${error.error.message}`);
+          },
+        },
+      });
+    });
   };
 
   return (
@@ -86,9 +108,15 @@ export default function LoginPage() {
             />
 
             <Field>
-              <Button type="submit">Login</Button>
-              <Button variant="outline" type="button">
-                Login with Google
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader className="size-4 animate-spin" />{" "}
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Login</span>
+                )}
               </Button>
               <FieldDescription className="text-center">
                 Don&apos;t have an account?{" "}
