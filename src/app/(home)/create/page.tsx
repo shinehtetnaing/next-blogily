@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createBlogAction } from "@/lib/actions/blog";
 import { blogSchema } from "@/lib/schemas/blog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "convex/react";
 import { ConvexError } from "convex/values";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -26,12 +26,10 @@ import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { api } from "../../../../convex/_generated/api";
 
 export default function CreatePage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const mutation = useMutation(api.blog.createBlog);
   const form = useForm({
     resolver: zodResolver(blogSchema),
     defaultValues: {
@@ -43,18 +41,13 @@ export default function CreatePage() {
   const onSubmit = async (data: z.infer<typeof blogSchema>) => {
     startTransition(async () => {
       try {
-        await mutation({
-          title: data.title,
-          content: data.content,
-        });
+        await createBlogAction(data);
 
         toast.success("Blog created successfully");
         router.push("/");
       } catch (error) {
         const errorMessage =
-          error instanceof ConvexError
-            ? (error.data as string)
-            : "Unexpected error occurred";
+          error instanceof ConvexError ? (error.data as string) : error;
         toast.error(`Failed to create blog: ${errorMessage}`);
       }
     });
