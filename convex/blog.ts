@@ -4,7 +4,11 @@ import { authComponent } from "./auth";
 
 // Create a new blog with the given title and content
 export const createBlog = mutation({
-  args: { title: v.string(), content: v.string() },
+  args: {
+    title: v.string(),
+    content: v.string(),
+    imageStorageId: v.id("_storage"),
+  },
   handler: async (ctx, args) => {
     const user = await authComponent.safeGetAuthUser(ctx);
 
@@ -16,6 +20,7 @@ export const createBlog = mutation({
       title: args.title,
       content: args.content,
       authorId: user._id,
+      imageStorageId: args.imageStorageId,
     });
     return newBlogId;
   },
@@ -26,5 +31,18 @@ export const getBlogs = query({
   handler: async (ctx) => {
     const blogs = await ctx.db.query("blogs").order("desc").collect();
     return blogs;
+  },
+});
+
+export const generateImageUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+
+    if (!user) {
+      throw new ConvexError("Not authenticated");
+    }
+
+    return await ctx.storage.generateUploadUrl();
   },
 });

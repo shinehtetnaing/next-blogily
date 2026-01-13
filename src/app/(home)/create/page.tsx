@@ -35,6 +35,7 @@ export default function CreatePage() {
     defaultValues: {
       title: "",
       content: "",
+      image: undefined,
     },
   });
 
@@ -100,6 +101,29 @@ export default function CreatePage() {
                       placeholder="Super cool blog content"
                       className="h-40"
                       {...field}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="image"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="image">Image</FieldLabel>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        field.onChange(file);
+                      }}
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.error && (
