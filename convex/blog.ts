@@ -30,7 +30,20 @@ export const getBlogs = query({
   args: {},
   handler: async (ctx) => {
     const blogs = await ctx.db.query("blogs").order("desc").collect();
-    return blogs;
+
+    return Promise.all(
+      blogs.map(async (blog) => {
+        const resolvedImageUrl =
+          blog.imageStorageId !== undefined
+            ? await ctx.storage.getUrl(blog.imageStorageId)
+            : null;
+
+        return {
+          ...blog,
+          imageUrl: resolvedImageUrl,
+        };
+      }),
+    );
   },
 });
 

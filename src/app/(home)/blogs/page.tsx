@@ -35,9 +35,13 @@ async function LoadBlogs() {
         <Card key={blog._id} className="overflow-hidden pt-0">
           <div className="relative h-64 w-full sm:h-72">
             <Image
-              src="https://images.unsplash.com/photo-1765873360315-b253774254eb?q=80&w=1175&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              src={
+                blog.imageUrl ??
+                "https://images.unsplash.com/photo-1765873360315-b253774254eb?q=80&w=1175&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              }
               alt={blog.title}
               fill
+              className="object-cover"
             />
           </div>
           <CardContent>
