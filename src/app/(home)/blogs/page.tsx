@@ -1,14 +1,12 @@
-"use client";
-
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useQuery } from "convex/react";
+import { fetchQuery } from "convex/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 
-export default function BlogPage() {
-  const blogs = useQuery(api.blog.getBlogs);
+export default async function BlogPage() {
+  const blogs = await fetchQuery(api.blog.getBlogs);
 
   return (
     <div className="py-8">
