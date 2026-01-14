@@ -7,6 +7,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { api } from "../../../../convex/_generated/api";
 
+export const dynamic = "force-static";
+export const revalidate = 30;
+
 export default async function BlogPage() {
   return (
     <div className="py-8">

@@ -45,7 +45,7 @@ export default function CreatePage() {
         await createBlogAction(data);
 
         toast.success("Blog created successfully");
-        router.push("/");
+        router.push("/blogs");
       } catch (error) {
         const errorMessage =
           error instanceof ConvexError ? (error.data as string) : error;
