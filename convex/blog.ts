@@ -59,3 +59,24 @@ export const generateImageUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
+
+export const getBlogById = query({
+  args: { blogId: v.id("blogs") },
+  handler: async (ctx, args) => {
+    const blog = await ctx.db.get("blogs", args.blogId);
+
+    if (blog === null) {
+      return null;
+    }
+
+    const resolvedImageUrl =
+      blog?.imageStorageId !== undefined
+        ? await ctx.storage.getUrl(blog.imageStorageId)
+        : null;
+
+    return {
+      ...blog,
+      imageUrl: resolvedImageUrl,
+    };
+  },
+});
