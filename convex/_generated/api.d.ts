@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as blog from "../blog.js";
+import type * as comment from "../comment.js";
 import type * as http from "../http.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   blog: typeof blog;
+  comment: typeof comment;
   http: typeof http;
 }>;
 
