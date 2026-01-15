@@ -15,6 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import CommentSection from "@/components/CommentSection";
 
 type GetBlogResult = FunctionReturnType<typeof api.blog.getBlogById>;
 
@@ -76,6 +77,8 @@ export default async function BlogDetails({
       </p>
 
       <Separator className="my-8" />
+
+      <CommentSection />
     </div>
   );
 }
