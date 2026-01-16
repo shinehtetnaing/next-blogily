@@ -2,7 +2,7 @@
 
 import { commentSchema } from "@/lib/schemas/comment";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { Loader, MessageSquare } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -16,9 +16,14 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Field, FieldError, FieldLabel } from "./ui/field";
 import { Textarea } from "./ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Separator } from "./ui/separator";
 
 const CommentSection = () => {
   const params = useParams<{ blogId: Id<"blogs"> }>();
+  const comments = useQuery(api.comment.getCommentsByBlogId, {
+    blogId: params.blogId,
+  });
   const [isPending, startTransition] = useTransition();
   const crerateComment = useMutation(api.comment.createComment);
   const form = useForm({
@@ -48,9 +53,9 @@ const CommentSection = () => {
     <Card>
       <CardHeader className="flex items-center gap-3 border-b">
         <MessageSquare className="size-5" />
-        <h2 className="text-lg font-semibold">Comments</h2>
+        <h2 className="text-lg font-semibold">{comments?.length} Comments</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-8">
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <Controller
             name="body"
@@ -82,6 +87,43 @@ const CommentSection = () => {
             )}
           </Button>
         </form>
+
+        {comments !== undefined && comments.length > 0 && (
+          <>
+            <Separator />
+            <section className="space-y-6">
+              {comments?.map((comment) => (
+                <div key={comment._id} className="flex gap-4">
+                  <Avatar className="size-10 shrink-0">
+                    <AvatarImage
+                      src={`https://avatar.vercel.sh/${comment.authorName}`}
+                      alt={comment.authorName}
+                    />
+                    <AvatarFallback>
+                      {comment.authorName.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold">
+                        {comment.authorName}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {new Date(comment._creationTime).toLocaleDateString(
+                          "en-US",
+                        )}
+                      </p>
+                    </div>
+
+                    <p className="text-foreground/90 text-sm leading-relaxed whitespace-pre-wrap">
+                      {comment.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </section>
+          </>
+        )}
       </CardContent>
     </Card>
   );
