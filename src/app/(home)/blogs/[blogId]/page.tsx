@@ -31,10 +31,12 @@ export default async function BlogDetails({
   let blog: GetBlogResult | null = null;
   let preloadedComments: GetCommentResult | null = null;
   try {
-    blog = await fetchQuery(api.blog.getBlogById, { blogId });
-    preloadedComments = await preloadQuery(api.comment.getCommentsByBlogId, {
-      blogId,
-    });
+    [blog, preloadedComments] = await Promise.all([
+      await fetchQuery(api.blog.getBlogById, { blogId }),
+      await preloadQuery(api.comment.getCommentsByBlogId, {
+        blogId,
+      }),
+    ]);
   } catch (error) {
     console.log(error);
     return <EmptyBlog />;
