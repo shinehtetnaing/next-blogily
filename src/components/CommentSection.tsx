@@ -2,7 +2,7 @@
 
 import { commentSchema } from "@/lib/schemas/comment";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "convex/react";
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { Loader, MessageSquare } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -12,18 +12,18 @@ import { toast } from "sonner";
 import z from "zod";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Field, FieldError, FieldLabel } from "./ui/field";
-import { Textarea } from "./ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
+import { Textarea } from "./ui/textarea";
 
-const CommentSection = () => {
+const CommentSection = (props: {
+  preloadedComments: Preloaded<typeof api.comment.getCommentsByBlogId>;
+}) => {
   const params = useParams<{ blogId: Id<"blogs"> }>();
-  const comments = useQuery(api.comment.getCommentsByBlogId, {
-    blogId: params.blogId,
-  });
+  const comments = usePreloadedQuery(props.preloadedComments);
   const [isPending, startTransition] = useTransition();
   const crerateComment = useMutation(api.comment.createComment);
   const form = useForm({
@@ -53,7 +53,9 @@ const CommentSection = () => {
     <Card>
       <CardHeader className="flex items-center gap-3 border-b">
         <MessageSquare className="size-5" />
-        <h2 className="text-lg font-semibold">{comments?.length} Comments</h2>
+        <h2 className="text-lg font-semibold">
+          {comments?.length} Comment{comments.length > 1 && "s"}
+        </h2>
       </CardHeader>
       <CardContent className="space-y-8">
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>

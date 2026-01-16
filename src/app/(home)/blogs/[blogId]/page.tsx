@@ -1,3 +1,4 @@
+import CommentSection from "@/components/CommentSection";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Empty,
@@ -8,16 +9,17 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
-import { fetchQuery } from "convex/nextjs";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
+import { Preloaded } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import { Annoyed, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import CommentSection from "@/components/CommentSection";
 
 type GetBlogResult = FunctionReturnType<typeof api.blog.getBlogById>;
+type GetCommentResult = Preloaded<typeof api.comment.getCommentsByBlogId>;
 
 export default async function BlogDetails({
   params,
@@ -27,8 +29,12 @@ export default async function BlogDetails({
   const { blogId } = await params;
 
   let blog: GetBlogResult | null = null;
+  let preloadedComments: GetCommentResult | null = null;
   try {
     blog = await fetchQuery(api.blog.getBlogById, { blogId });
+    preloadedComments = await preloadQuery(api.comment.getCommentsByBlogId, {
+      blogId,
+    });
   } catch (error) {
     console.log(error);
     return <EmptyBlog />;
@@ -78,7 +84,7 @@ export default async function BlogDetails({
 
       <Separator className="my-8" />
 
-      <CommentSection />
+      <CommentSection preloadedComments={preloadedComments} />
     </div>
   );
 }
