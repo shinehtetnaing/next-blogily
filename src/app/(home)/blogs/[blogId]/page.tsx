@@ -13,6 +13,7 @@ import { fetchQuery, preloadQuery } from "convex/nextjs";
 import { Preloaded } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import { Annoyed, ArrowLeft } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../../convex/_generated/api";
@@ -20,6 +21,26 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 
 type GetBlogResult = FunctionReturnType<typeof api.blog.getBlogById>;
 type GetCommentResult = Preloaded<typeof api.comment.getCommentsByBlogId>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ blogId: Id<"blogs"> }>;
+}): Promise<Metadata> {
+  const { blogId } = await params;
+  const blog = await fetchQuery(api.blog.getBlogById, { blogId });
+
+  if (!blog) {
+    return {
+      title: "Blog not found",
+    };
+  }
+
+  return {
+    title: blog.title,
+    description: blog.content,
+  };
+}
 
 export default async function BlogDetails({
   params,
