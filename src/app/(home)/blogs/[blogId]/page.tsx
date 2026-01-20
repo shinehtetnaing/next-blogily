@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import { redirect } from "next/navigation";
 
 type GetBlogResult = FunctionReturnType<typeof api.blog.getBlogById>;
 type GetCommentResult = Preloaded<typeof api.comment.getCommentsByBlogId>;
@@ -67,6 +68,10 @@ export default async function BlogDetails({
   } catch (error) {
     console.log(error);
     return <EmptyBlog />;
+  }
+
+  if (!userId) {
+    return redirect("/auth/login");
   }
 
   if (!blog) {
