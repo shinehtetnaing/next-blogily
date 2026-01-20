@@ -1,3 +1,4 @@
+import BlogPresence from "@/components/BlogPresence";
 import CommentSection from "@/components/CommentSection";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
+import { fetchAuthQuery } from "@/lib/auth-server";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
 import { Preloaded } from "convex/react";
 import { FunctionReturnType } from "convex/server";
@@ -51,13 +53,17 @@ export default async function BlogDetails({
 
   let blog: GetBlogResult | null = null;
   let preloadedComments: GetCommentResult | null = null;
+  let userId = null;
   try {
-    [blog, preloadedComments] = await Promise.all([
+    [blog, preloadedComments, userId] = await Promise.all([
       await fetchQuery(api.blog.getBlogById, { blogId }),
       await preloadQuery(api.comment.getCommentsByBlogId, {
         blogId,
       }),
+      await fetchAuthQuery(api.presence.getUserId),
     ]);
+
+    console.log(userId);
   } catch (error) {
     console.log(error);
     return <EmptyBlog />;
@@ -94,9 +100,14 @@ export default async function BlogDetails({
         <h2 className="text-foreground text-4xl font-bold tracking-tight">
           {blog.title}
         </h2>
-        <span className="text-muted-foreground text-sm">
-          Posted on: {new Date(blog._creationTime).toLocaleDateString("en-US")}
-        </span>
+
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground text-sm">
+            Posted on:{" "}
+            {new Date(blog._creationTime).toLocaleDateString("en-US")}
+          </span>
+          {userId && <BlogPresence roomId={blog._id} userId={userId} />}
+        </div>
       </div>
 
       <Separator className="my-8" />
