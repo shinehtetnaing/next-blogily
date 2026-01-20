@@ -1,10 +1,10 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import z from "zod";
 import { api } from "../../../convex/_generated/api";
 import { fetchAuthMutation } from "../auth-server";
 import { blogSchema } from "../schemas/blog";
-import { revalidatePath } from "next/cache";
 
 export async function createBlogAction(values: z.infer<typeof blogSchema>) {
   try {
@@ -40,5 +40,5 @@ export async function createBlogAction(values: z.infer<typeof blogSchema>) {
     throw new Error("Failed to create blog: " + (error as Error).message);
   }
 
-  revalidatePath("/blogs");
+  updateTag("blogs-list");
 }

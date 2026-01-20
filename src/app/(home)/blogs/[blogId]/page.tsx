@@ -63,8 +63,6 @@ export default async function BlogDetails({
       }),
       await fetchAuthQuery(api.presence.getUserId),
     ]);
-
-    console.log(userId);
   } catch (error) {
     console.log(error);
     return <EmptyBlog />;
