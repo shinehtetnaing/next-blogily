@@ -21,19 +21,11 @@ import { blogSchema } from "@/lib/schemas/blog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConvexError } from "convex/values";
 import { Loader } from "lucide-react";
-import { Metadata } from "next";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-
-export const metadata: Metadata = {
-  title: "Blog | Next.js 16 Tutorial",
-  description: "Create your blog.",
-  category: "Web development",
-  authors: [{ name: "Shine" }],
-};
 
 export default function CreatePage() {
   const router = useRouter();
