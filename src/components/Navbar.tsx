@@ -7,6 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button, buttonVariants } from "./ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import SearchInput from "./SearchInput";
 
 const Navbar = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -32,6 +33,9 @@ const Navbar = () => {
           </Link>
         </nav>
         <div className="flex items-center gap-5">
+          <div className="hidden md:block">
+            <SearchInput />
+          </div>
           {isLoading ? null : isAuthenticated ? (
             <Button
               onClick={() =>
